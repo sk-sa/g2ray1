@@ -1,30 +1,11 @@
-{
-  "name": "g2ray",
-  "build": {
-    "dockerfile": "Dockerfile",
-    "context": "."
-  },
-  "features": {
-    "ghcr.io/devcontainers/features/common-utils:2": {
-      "installZsh": false
-    },
-    "ghcr.io/devcontainers/features/github-cli:1": {
-      "version": "latest"
-    }
-  },
-  "postAttachCommand": {
-    "expose": "gh codespace ports visibility 443:public -c $CODESPACE_NAME",
-    "start": "sudo /usr/local/bin/xray run -c /etc/xray/g2ray.json"
-  },
-  "portsAttributes": {
-    "443": {
-      "label": "g2ray",
-      "protocol": "http",
-      "onAutoForward": "silent"
-    }
-  },
-  "forwardPorts": [443],
-  "hostRequirements": {
-    "cpus": 2
-  }
-}
+#!/bin/bash
+CONFIG="/etc/xray/g2ray.json"
+UUID=$(grep -o '"id": *"[^"]*"' "$CONFIG" | head -1 | grep -o '"[^"]*"$' | tr -d '"')
+if [ -z "$UUID" ]; then echo "[g2ray] UUID پیدا نشد."; exit 1; fi
+HOST="${CODESPACE_NAME}-443.app.github.dev"
+LINK="vless://${UUID}@${HOST}:443?encryption=none&security=tls&sni=${HOST}&type=xhttp&mode=packet-up&path=%2F#Amrr"
+echo ""
+echo "================================================"
+echo "  $LINK"
+echo "================================================"
+echo ""
